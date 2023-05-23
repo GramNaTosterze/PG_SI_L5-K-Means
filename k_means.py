@@ -42,21 +42,15 @@ def assign_to_cluster(data, centroid):
         assignments.append(idx)
     return assignments
 
-def update_centroids(data, assignments, k):
+def update_centroids(data, assignments):
     # TODO find new centroids based on the assignments
-    centroids = [[0,0,0,0] for i in range(k + 1)]
-    length =    [0 for i in range(k + 1)]
-    
-    
-    
-    for i in range(len(data)):
-        idx = assignments[i]
-        centroids[idx] += data[i]
-        length[idx] += 1
+    k = np.max(assignments) + 1
+    centroids = np.zeros(k)
+    for i in range(k):
+        centroids[i] = np.average(data[assignments == i], axis=1)
         
+    return centroids
     
-    return np.array([np.array(centroids[i]) / length[i] for i in range(k)])
-
 def mean_intra_distance(data, assignments, centroids):
     return np.sqrt(np.sum((data - centroids[assignments, :])**2))
 
@@ -71,7 +65,7 @@ def k_means(data, num_centroids, kmeansplusplus= False):
     assignments  = assign_to_cluster(data, centroids)
     for i in range(100): # max number of iteration = 100
         print(f"Intra distance after {i} iterations: {mean_intra_distance(data, assignments, centroids)}")
-        centroids = update_centroids(data, assignments, len(centroids))
+        centroids = update_centroids(data, assignments)
         new_assignments = assign_to_cluster(data, centroids)
         if np.all(new_assignments == assignments): # stop if nothing changed
             break
